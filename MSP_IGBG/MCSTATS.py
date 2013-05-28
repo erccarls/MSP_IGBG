@@ -44,9 +44,7 @@ def DBSCAN_Compute_Clusters(mcSims, eps, min_samples ,nCorePoints = 3, numAnalyz
                     Border points.
     '''
     
-    # Initialize the thread pool
-    #if (numProcs<=0):numProcs += mp.cpu_count()
-    #p = pool.Pool(numProcs)
+    
     
     # Check number to analyze
     if ((numAnalyze == 0) or (numAnalyze > len(mcSims))):
@@ -58,10 +56,13 @@ def DBSCAN_Compute_Clusters(mcSims, eps, min_samples ,nCorePoints = 3, numAnalyz
     DBSCAN_PARTIAL = partial(DBSCAN_THREAD,  eps=eps, min_samples=min_samples,nCorePoints = nCorePoints, indexing = indexing,plot=plot)
     
     # Call mutithreaded map. 
-    #dbscanResults = p.map(DBSCAN_PARTIAL, mcSims[:numAnalyze])
-
-    # Serial Version.  Only use for debugging
-    dbscanResults = map(DBSCAN_PARTIAL, mcSims[:numAnalyze])
+    # Initialize the thread pool
+    if (numProcs>1):
+        p = pool.Pool(numProcs)
+        dbscanResults = p.map(DBSCAN_PARTIAL, mcSims[:numAnalyze])
+    else: 
+        # Serial Version.  Only use for debugging
+        dbscanResults = map(DBSCAN_PARTIAL, mcSims[:numAnalyze])
     
     #Single Call Version. Useful for Debugging
     #dbscanResults = DBSCAN_THREAD(mcSims[0],  eps=eps, min_samples=min_samples,nCorePoints = nCorePoints, indexing = indexing)
